@@ -1,24 +1,18 @@
 <#
 .SYNOPSIS
-    Short description
+    Adds a basic console menu system for interacting with a variable that has one or many (array) simple values.
 .DESCRIPTION
-    Long description
+    Adds a basic console menu system for interacting with a variable that has one or many (array) simple values. It does so
+    by detecting the type of the variable and displaying a generic menu system that allows interaction with
+    that variable type.    
 .EXAMPLE
-    Example of how to use this cmdlet
+    InteractWith-Variable -InputObject $(Get-Process).Name -Label "Local Processes"
 .EXAMPLE
-    Another example of how to use this cmdlet
+    InteractWith-Variable -InputObject $(Get-Process)[0].Name -Label "Local Processes"
 .INPUTS
-    Inputs to this cmdlet (if any)
+    Variable to be interacted with.
 .OUTPUTS
-    Output from this cmdlet (if any)
-.NOTES
-    General notes
-.COMPONENT
-    The component this cmdlet belongs to
-.ROLE
-    The role this cmdlet belongs to
-.FUNCTIONALITY
-    The functionality that best describes this cmdlet
+    Resulting modified variable.
 #>
 function InteractWith-Variable {
     [CmdletBinding(SupportsShouldProcess = $true,
@@ -27,8 +21,8 @@ function InteractWith-Variable {
         # Input variable - any type
         [Parameter(Mandatory = $true,
             Position = 0,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
             ValueFromRemainingArguments = $false)]
         [ValidateNotNull()]
         [Object]
@@ -45,12 +39,7 @@ function InteractWith-Variable {
     )
     
     begin {
-        if ($CreateIfNotExists) {
-            
-        }
-
         Write-Debug "Input Object Type: [$($InputObject.GetType())]`n"
-
         function ShowVariable ($InnerObject, [Switch]$Confirm) {
             if ([String]::IsNullOrWhiteSpace($Label)) {
                 Write-Host "Contents of: [$($InnerObject.GetType())] variable" -ForegroundColor DarkCyan
