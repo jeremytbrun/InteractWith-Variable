@@ -44,10 +44,10 @@ function InteractWith-Variable {
             Clear-Host
 
             if ([String]::IsNullOrWhiteSpace($Label)) {
-                Write-Host "Contents of: [$($InnerObject.GetType())] variable" -ForegroundColor DarkCyan
+                Write-Host "Contents of [$($InnerObject.GetType())] variable" -ForegroundColor DarkCyan
             }
             else {
-                Write-Host "Contents of: $Label" -ForegroundColor DarkCyan
+                Write-Host $Label -ForegroundColor DarkCyan
             }
             
             if ($InnerObject -is [Object[]]) {
