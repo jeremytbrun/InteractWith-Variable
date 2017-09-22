@@ -105,7 +105,7 @@ function InteractWith-Variable {
    Replace a data item:   'Replace itemnumber newdatavalue'
          Example: Replace 2 SomethingNew
     Delete a data item:   'Delete itemnumber'
-         Example: Delete 2
+         Example: Delete 3
 "@
 
                 Write-Host "You have the following options to edit:" -ForegroundColor DarkYellow
