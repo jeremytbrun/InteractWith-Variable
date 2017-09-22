@@ -41,6 +41,8 @@ function InteractWith-Variable {
     begin {
         Write-Debug "Input Object Type: [$($InputObject.GetType())]`n"
         function ShowVariable ($InnerObject, [Switch]$Confirm) {
+            Clear-Host
+
             if ([String]::IsNullOrWhiteSpace($Label)) {
                 Write-Host "Contents of: [$($InnerObject.GetType())] variable" -ForegroundColor DarkCyan
             }
@@ -49,14 +51,11 @@ function InteractWith-Variable {
             }
             
             if ($InnerObject -is [Object[]]) {
-                Write-Debug "Detected Object Array"
-
                 if ($InnerObject.Count -gt 0) {
-                    $Index = 1
+                    $Lines = (($InnerObject | Select-Object @{N = "Line"; E = {"($($InnerObject.IndexOf($_) + 1))"}}, @{N = "Data"; E = {$_}} | Sort-Object {$_.Line.Trim('()')} | Format-Table | Out-String) -replace "`r", "" -split "`n") | Where-Object {$_.Trim() -ne ""}
 
-                    $InnerObject | ForEach-Object {
-                        Write-Host "      ($Index)   $_" -ForegroundColor Cyan
-                        $Index++
+                    $Lines | ForEach-Object {
+                        Write-Host "      $_" -ForegroundColor Cyan
                     }
                 }
                 else {
@@ -64,8 +63,6 @@ function InteractWith-Variable {
                 }
             }
             else {
-                Write-Debug "Detected Object"
-
                 if (-not [String]::IsNullOrWhiteSpace($InnerObject)) {
                     Write-Host "      $InnerObject" -ForegroundColor Cyan
                 }
