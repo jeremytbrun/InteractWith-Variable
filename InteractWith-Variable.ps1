@@ -35,7 +35,7 @@ function InteractWith-Variable {
             ValueFromPipelineByPropertyName = $false,
             ValueFromRemainingArguments = $false)]
         [string]
-        $Label
+        $InformationalHeader
     )
     
     begin {
@@ -43,11 +43,11 @@ function InteractWith-Variable {
         function ShowVariable ($InnerObject, [Switch]$Confirm) {
             Clear-Host
 
-            if ([String]::IsNullOrWhiteSpace($Label)) {
+            if ([String]::IsNullOrWhiteSpace($InformationalHeader)) {
                 Write-Host "Contents of [$($InnerObject.GetType())] variable" -ForegroundColor DarkCyan
             }
             else {
-                Write-Host $Label -ForegroundColor DarkCyan
+                Write-Host $InformationalHeader -ForegroundColor DarkCyan
             }
             
             if ($InnerObject -is [Object[]]) {
