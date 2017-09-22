@@ -3,4 +3,4 @@ This PowerShell function adds a basic console menu system for interacting with a
 
 Future plans are:
   1. Allow custom validation of user input
-  2. All custom prompt messages
+  2. Allow custom prompt messages
