@@ -100,11 +100,11 @@ function InteractWith-Variable {
         function EditVariable ($InnerObject, [Switch]$Confirm) {
             if ($InnerObject -is [Object[]]) {
                 $EditOptions = @"
-   `"Add newdatavalue`"                : Adds a new data item
+   Add a new data item:   'Add newdatavalue'
          Example: Add SomethingElse
-   `"Replace itemnumber newdatavalue`" : Replaces a data item
+   Replace a data item:   'Replace itemnumber newdatavalue'
          Example: Replace 2 SomethingNew
-   `"Delete itemnumber`"               : Deletes a data item
+    Delete a data item:   'Delete itemnumber'
          Example: Delete 2
 "@
 
