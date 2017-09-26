@@ -39,12 +39,21 @@ Function InteractWith-Variable {
 
         # Regex pattern for input validation
         [Parameter(Mandatory = $false,
-        Position = 2,
-        ValueFromPipeline = $false,
-        ValueFromPipelineByPropertyName = $false,
-        ValueFromRemainingArguments = $false)]
+            Position = 2,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            ValueFromRemainingArguments = $false)]
         [regex]
-        $ValidatePattern
+        $ValidatePattern,
+
+        # Script block for input validation
+        [Parameter(Mandatory = $false,
+            Position = 2,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            ValueFromRemainingArguments = $false)]
+        [scriptblock]
+        $ValidateScript
     )
     
     begin {
