@@ -28,18 +28,31 @@ function InteractWith-Variable {
         [Object]
         $InputObject,
 
-        # Input variable description/label
+        # Menu description/label
         [Parameter(Mandatory = $false,
             Position = 1,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
             ValueFromRemainingArguments = $false)]
         [string]
-        $InformationalHeader
+        $InformationalHeader,
+
+        # Regex pattern for input validation
+        [Parameter(Mandatory = $false,
+        Position = 2,
+        ValueFromPipeline = $false,
+        ValueFromPipelineByPropertyName = $false,
+        ValueFromRemainingArguments = $false)]
+        [regex]
+        $PatternMatch
     )
     
     begin {
         Write-Debug "Input Object Type: [$($InputObject.GetType())]`n"
+
+        if (-not $PatternMatch) {
+            $PatternMatch = '.*'
+        }
         function ShowVariable ($InnerObject, [Switch]$Confirm) {
             Clear-Host
 
@@ -98,6 +111,8 @@ function InteractWith-Variable {
         }
 
         function EditVariable ($InnerObject, [Switch]$Confirm) {
+            [Regex]$ActionPattern = "^(((A|Add))|((R|Replace) \d{1,3})|((D|Delete) \d{1,3}$)) "
+
             if ($InnerObject -is [Object[]]) {
                 $EditOptions = @"
    Add a new data item:   'Add newdatavalue'
@@ -114,7 +129,7 @@ function InteractWith-Variable {
                 do {
                     Write-Host "`rEnter Edit selection from options above: " -NoNewLine -ForegroundColor Yellow
                     $EditSelection = Read-Host
-                } while ($EditSelection -notmatch '^(A|Add) ' -and $EditSelection -notmatch '^(R|Replace) \d{1,3} ' -and $EditSelection -notmatch '^(D|Delete) \d{1,3}$')
+                } while ($EditSelection -notmatch $ActionPattern)
             }
             else {
                 Write-Host "`rEnter new data value: " -NoNewLine -ForegroundColor Yellow
@@ -126,14 +141,21 @@ function InteractWith-Variable {
                 '^a' {
                     $NewData = $EditSelection.SubString($EditSelection.IndexOf(' ') + 1)
 
-                    if ($NewData -notin $InnerObject) {
-                        Write-Debug "Action: Add; New Data: $NewData"
-                        $InnerObject += $NewData
+                    if ($NewData -match $PatternMatch) {
+                        if ($NewData -notin $InnerObject) {
+                            Write-Debug "Action: Add; New Data: $NewData"
+                            $InnerObject += $NewData
+                        }
+                        else {
+                            Write-Debug "Object already contains data: $NewData"
+                            Write-Host Write-Host "Value is already present!" -ForegroundColor DarkCyan
+                            Pause
+                        }
                     }
                     else {
-                        Write-Debug "Object already contains data: $NewData"
-                        Write-Host Write-Host "Value is already present!" -ForegroundColor DarkCyan
-                        Start-Sleep -Seconds 1
+                        Write-Debug "`"$NewData`" does not match pattern `"$PatternMatch`""
+                        Write-Host "`"$NewData`" does not match pattern `"$PatternMatch`"" -ForegroundColor DarkCyan
+                        Pause
                     }
                     break
                 }
@@ -141,14 +163,21 @@ function InteractWith-Variable {
                     $OldData = $InnerObject[$EditSelection.IndexOf(' ')]
                     $NewData = $EditSelection.Substring($EditSelection.IndexOf(' ', $EditSelection.IndexOf(' ') + 1) + 1)
 
-                    if ($NewData -notin $InnerObject) {
-                        Write-Debug "Action: Replace; Old Data $OldData; New Data: $NewData"
-                        $InnerObject[$EditSelection.IndexOf(' ')] = $NewData
+                    if ($NewData -match $PatternMatch) {
+                        if ($NewData -notin $InnerObject) {
+                            Write-Debug "Action: Replace; Old Data $OldData; New Data: $NewData"
+                            $InnerObject[$EditSelection.IndexOf(' ')] = $NewData
+                        }
+                        else {
+                            Write-Debug "Object already contains data: $NewData"
+                            Write-Host Write-Host "Value is already present!" -ForegroundColor DarkCyan
+                            Pause
+                        }
                     }
                     else {
-                        Write-Debug "Object already contains data: $NewData"
-                        Write-Host Write-Host "Value is already present!" -ForegroundColor DarkCyan
-                        Start-Sleep -Seconds 1
+                        Write-Debug "`"$NewData`" does not match required pattern `"$PatternMatch`""
+                        Write-Host "`"$NewData`" does not match required pattern `"$PatternMatch`"" -ForegroundColor DarkCyan
+                        Pause
                     }
                     break
                 }
