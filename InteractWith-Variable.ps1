@@ -120,8 +120,8 @@ Function InteractWith-Variable {
         }
 
         function EditVariable ($InnerObject, [Switch]$Confirm) {
-            [Regex]$ActionPattern = "^(((A|Add) )|((R|Replace) \d{1,3} )|((D|Delete) \d{1,3}$))"
-
+            $ActionPattern = "^(((A|Add) )|((R|Replace) \d{1,3} )|((D|Delete) \d{1,3}$)|((E|Exit)))"
+            
             if ($InnerObject -is [Object[]]) {
                 $EditOptions = @"
    Add a new data item:   'Add newdatavalue'
@@ -130,6 +130,7 @@ Function InteractWith-Variable {
          Example: Replace 2 SomethingNew
     Delete a data item:   'Delete itemnumber'
          Example: Delete 3
+           Exit editor:   'Exit'
 "@
 
                 Write-Host "You have the following options to edit:" -ForegroundColor DarkYellow
@@ -158,7 +159,7 @@ Function InteractWith-Variable {
                             }
                             else {
                                 Write-Debug "Object already contains data: $NewData"
-                                Write-Host Write-Host "Value is already present!" -ForegroundColor DarkCyan
+                                Write-Host "Value is already present!" -ForegroundColor DarkCyan
                                 Pause
                             }
                         }
@@ -183,11 +184,11 @@ Function InteractWith-Variable {
                         if (-not $ValidateScript -or ($ValidateScript -and ($NewData | Where-Object $ValidateScript))) {
                             if ($NewData -notin $InnerObject) {
                                 Write-Debug "Action: Replace; Old Data $OldData; New Data: $NewData"
-                                $InnerObject[$EditSelection.IndexOf(' ')] = $NewData
+                                $InnerObject[$EditSelection.Substring($EditSelection.IndexOf(' ') + 1, 1) - 1] = $NewData
                             }
                             else {
                                 Write-Debug "Object already contains data: $NewData"
-                                Write-Host Write-Host "Value is already present!" -ForegroundColor DarkCyan
+                                Write-Host "Value is already present!" -ForegroundColor DarkCyan
                                 Pause
                             }
                         }
