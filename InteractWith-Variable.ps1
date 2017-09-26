@@ -52,7 +52,7 @@ function InteractWith-Variable {
             
             if ($InnerObject -is [Object[]]) {
                 if ($InnerObject.Count -gt 0) {
-                    $Lines = (($InnerObject | Select-Object @{N = "Line"; E = {"($($InnerObject.IndexOf($_) + 1))"}}, @{N = "Data"; E = {$_}} | Sort-Object {$_.Line.Trim('()')} | Format-Table | Out-String) -replace "`r", "" -split "`n") | Where-Object {$_.Trim() -ne ""}
+                    $Lines = (($InnerObject | Select-Object @{N = "Line"; E = {"($($InnerObject.IndexOf($_) + 1))"}}, @{N = "Data"; E = {"[$_]"}} | Sort-Object {$_.Line.Trim('()')} | Format-Table | Out-String) -replace "`r", "" -split "`n") | Where-Object {$_.Trim() -ne ""}
 
                     $Lines | ForEach-Object {
                         Write-Host "      $_" -ForegroundColor Cyan
@@ -64,7 +64,7 @@ function InteractWith-Variable {
             }
             else {
                 if (-not [String]::IsNullOrWhiteSpace($InnerObject)) {
-                    Write-Host "      $InnerObject" -ForegroundColor Cyan
+                    Write-Host "      [$InnerObject]" -ForegroundColor Cyan
                 }
                 else {
                     Write-Host "      ***NO DATA FOUND***" -ForegroundColor Cyan
@@ -114,7 +114,7 @@ function InteractWith-Variable {
                 do {
                     Write-Host "`rEnter Edit selection from options above: " -NoNewLine -ForegroundColor Yellow
                     $EditSelection = Read-Host
-                } while ($EditSelection -notmatch '^(A|Add) \w+$' -and $EditSelection -notmatch '^(R|Replace) \d{1,3} \w+$' -and $EditSelection -notmatch '^(D|Delete) \d{1,3}$')
+                } while ($EditSelection -notmatch '^(A|Add) ' -and $EditSelection -notmatch '^(R|Replace) \d{1,3} ' -and $EditSelection -notmatch '^(D|Delete) \d{1,3}$')
             }
             else {
                 Write-Host "`rEnter new data value: " -NoNewLine -ForegroundColor Yellow
@@ -124,23 +124,46 @@ function InteractWith-Variable {
 
             switch -regex ($EditSelection) {
                 '^a' {
-                    Write-Debug "Action: Add; New Data: $($EditSelection.Split(' ')[1])"
-                    $InnerObject += $EditSelection.Split(' ')[1]
+                    $NewData = $EditSelection.SubString($EditSelection.IndexOf(' ') + 1)
+
+                    if ($NewData -notin $InnerObject) {
+                        Write-Debug "Action: Add; New Data: $NewData"
+                        $InnerObject += $NewData
+                    }
+                    else {
+                        Write-Debug "Object already contains data: $NewData"
+                        Write-Host Write-Host "Value is already present!" -ForegroundColor DarkCyan
+                        Start-Sleep -Seconds 1
+                    }
                     break
                 }
                 '^r' {
-                    Write-Debug "Action: Replace; Old Data $($InnerObject[$EditSelection.Split(' ')[1] - 1]); New Data: $($EditSelection.Split(' ')[2])"
-                    $InnerObject[$EditSelection.Split(' ')[1] - 1] = $EditSelection.Split(' ')[2]
+                    $OldData = $InnerObject[$EditSelection.IndexOf(' ')]
+                    $NewData = $EditSelection.Substring($EditSelection.IndexOf(' ', $EditSelection.IndexOf(' ') + 1) + 1)
+
+                    if ($NewData -notin $InnerObject) {
+                        Write-Debug "Action: Replace; Old Data $OldData; New Data: $NewData"
+                        $InnerObject[$EditSelection.IndexOf(' ')] = $NewData
+                    }
+                    else {
+                        Write-Debug "Object already contains data: $NewData"
+                        Write-Host Write-Host "Value is already present!" -ForegroundColor DarkCyan
+                        Start-Sleep -Seconds 1
+                    }
                     break
                 }
                 '^d' {
-                    Write-Debug "Action: Delete; Old Data: $($InnerObject[$EditSelection.Split(' ')[1] - 1])"
-                    $InnerObject = @($InnerObject | Where-Object {$_ -ne $InnerObject[$EditSelection.Split(' ')[1] - 1]})
+                    $OldData = $InnerObject[$EditSelection.IndexOf(' ') + 1]
+
+                    Write-Debug "Action: Delete; Old Data: $OldData"
+                    $InnerObject = @($InnerObject | Where-Object {$_ -ne $OldData})
                     break
                 }
                 '^o' {
-                    Write-Debug "Action: Overwrite; Old Data: $InnerObject; New Data: $($EditSelection.Split(' ')[1])"
-                    $InnerObject = $EditSelection.Split(' ')[1]
+                    $NewData = $EditSelection.Substring($EditSelection.IndexOf(' ') + 1)
+
+                    Write-Debug "Action: Overwrite; Old Data: $InnerObject; New Data: $NewData"
+                    $InnerObject = $NewData
                     break
                 }
                 Default {}
