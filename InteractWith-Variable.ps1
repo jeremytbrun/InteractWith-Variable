@@ -120,7 +120,7 @@ Function InteractWith-Variable {
         }
 
         function EditVariable ($InnerObject, [Switch]$Confirm) {
-            [Regex]$ActionPattern = "^(((A|Add))|((R|Replace) \d{1,3})|((D|Delete) \d{1,3}$)) "
+            [Regex]$ActionPattern = "^(((A|Add) )|((R|Replace) \d{1,3} )|((D|Delete) \d{1,3}$))"
 
             if ($InnerObject -is [Object[]]) {
                 $EditOptions = @"
@@ -151,13 +151,20 @@ Function InteractWith-Variable {
                     $NewData = $EditSelection.SubString($EditSelection.IndexOf(' ') + 1)
 
                     if ($NewData -match $ValidatePattern) {
-                        if ($NewData -notin $InnerObject) {
-                            Write-Debug "Action: Add; New Data: $NewData"
-                            $InnerObject += $NewData
+                        if (-not $ValidateScript -or ($ValidateScript -and ($NewData | Where-Object $ValidateScript))) {
+                            if ($NewData -notin $InnerObject) {
+                                Write-Debug "Action: Add; New Data: $NewData"
+                                $InnerObject += $NewData
+                            }
+                            else {
+                                Write-Debug "Object already contains data: $NewData"
+                                Write-Host Write-Host "Value is already present!" -ForegroundColor DarkCyan
+                                Pause
+                            }
                         }
                         else {
-                            Write-Debug "Object already contains data: $NewData"
-                            Write-Host Write-Host "Value is already present!" -ForegroundColor DarkCyan
+                            Write-Debug "`"$NewData`" does not pass validation script`n$ValidateScript"
+                            Write-Host "`"$NewData`" does not pass validation script`n$ValidateScript" -ForegroundColor DarkCyan
                             Pause
                         }
                     }
@@ -169,17 +176,24 @@ Function InteractWith-Variable {
                     break
                 }
                 '^r' {
-                    $OldData = $InnerObject[$EditSelection.IndexOf(' ')]
+                    $OldData = $InnerObject[$EditSelection.Substring($EditSelection.IndexOf(' ') + 1, 1) - 1]
                     $NewData = $EditSelection.Substring($EditSelection.IndexOf(' ', $EditSelection.IndexOf(' ') + 1) + 1)
 
                     if ($NewData -match $ValidatePattern) {
-                        if ($NewData -notin $InnerObject) {
-                            Write-Debug "Action: Replace; Old Data $OldData; New Data: $NewData"
-                            $InnerObject[$EditSelection.IndexOf(' ')] = $NewData
+                        if (-not $ValidateScript -or ($ValidateScript -and ($NewData | Where-Object $ValidateScript))) {
+                            if ($NewData -notin $InnerObject) {
+                                Write-Debug "Action: Replace; Old Data $OldData; New Data: $NewData"
+                                $InnerObject[$EditSelection.IndexOf(' ')] = $NewData
+                            }
+                            else {
+                                Write-Debug "Object already contains data: $NewData"
+                                Write-Host Write-Host "Value is already present!" -ForegroundColor DarkCyan
+                                Pause
+                            }
                         }
                         else {
-                            Write-Debug "Object already contains data: $NewData"
-                            Write-Host Write-Host "Value is already present!" -ForegroundColor DarkCyan
+                            Write-Debug "`"$NewData`" does not pass validation script`n$ValidateScript"
+                            Write-Host "`"$NewData`" does not pass validation script`n$ValidateScript" -ForegroundColor DarkCyan
                             Pause
                         }
                     }
@@ -191,7 +205,7 @@ Function InteractWith-Variable {
                     break
                 }
                 '^d' {
-                    $OldData = $InnerObject[$EditSelection.IndexOf(' ') + 1]
+                    $OldData = $InnerObject[$EditSelection.Substring($EditSelection.IndexOf(' ') + 1, 1) - 1]
 
                     Write-Debug "Action: Delete; Old Data: $OldData"
                     $InnerObject = @($InnerObject | Where-Object {$_ -ne $OldData})
@@ -200,8 +214,22 @@ Function InteractWith-Variable {
                 '^o' {
                     $NewData = $EditSelection.Substring($EditSelection.IndexOf(' ') + 1)
 
-                    Write-Debug "Action: Overwrite; Old Data: $InnerObject; New Data: $NewData"
-                    $InnerObject = $NewData
+                    if ($NewData -match $ValidatePattern) {
+                        if (-not $ValidateScript -or ($ValidateScript -and ($NewData | Where-Object $ValidateScript))) {
+                            Write-Debug "Action: Overwrite; Old Data: $InnerObject; New Data: $NewData"
+                            $InnerObject = $NewData
+                        }
+                        else {
+                            Write-Debug "`"$NewData`" does not pass validation script`n$ValidateScript"
+                            Write-Host "`"$NewData`" does not pass validation script`n$ValidateScript" -ForegroundColor DarkCyan
+                            Pause
+                        }
+                    }
+                    else {
+                        Write-Debug "`"$NewData`" does not match required pattern `"$ValidatePattern`""
+                        Write-Host "`"$NewData`" does not match required pattern `"$ValidatePattern`"" -ForegroundColor DarkCyan
+                        Pause
+                    }
                     break
                 }
                 Default {}
