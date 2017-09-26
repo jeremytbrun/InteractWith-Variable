@@ -14,7 +14,7 @@
 .OUTPUTS
     Resulting modified variable.
 #>
-function InteractWith-Variable {
+Function InteractWith-Variable {
     [CmdletBinding(SupportsShouldProcess = $true,
         ConfirmImpact = 'Low')]
     Param (
@@ -44,14 +44,14 @@ function InteractWith-Variable {
         ValueFromPipelineByPropertyName = $false,
         ValueFromRemainingArguments = $false)]
         [regex]
-        $PatternMatch
+        $ValidatePattern
     )
     
     begin {
         Write-Debug "Input Object Type: [$($InputObject.GetType())]`n"
 
-        if (-not $PatternMatch) {
-            $PatternMatch = '.*'
+        if (-not $ValidatePattern) {
+            $ValidatePattern = '.*'
         }
         function ShowVariable ($InnerObject, [Switch]$Confirm) {
             Clear-Host
@@ -141,7 +141,7 @@ function InteractWith-Variable {
                 '^a' {
                     $NewData = $EditSelection.SubString($EditSelection.IndexOf(' ') + 1)
 
-                    if ($NewData -match $PatternMatch) {
+                    if ($NewData -match $ValidatePattern) {
                         if ($NewData -notin $InnerObject) {
                             Write-Debug "Action: Add; New Data: $NewData"
                             $InnerObject += $NewData
@@ -153,8 +153,8 @@ function InteractWith-Variable {
                         }
                     }
                     else {
-                        Write-Debug "`"$NewData`" does not match pattern `"$PatternMatch`""
-                        Write-Host "`"$NewData`" does not match pattern `"$PatternMatch`"" -ForegroundColor DarkCyan
+                        Write-Debug "`"$NewData`" does not match pattern `"$ValidatePattern`""
+                        Write-Host "`"$NewData`" does not match pattern `"$ValidatePattern`"" -ForegroundColor DarkCyan
                         Pause
                     }
                     break
@@ -163,7 +163,7 @@ function InteractWith-Variable {
                     $OldData = $InnerObject[$EditSelection.IndexOf(' ')]
                     $NewData = $EditSelection.Substring($EditSelection.IndexOf(' ', $EditSelection.IndexOf(' ') + 1) + 1)
 
-                    if ($NewData -match $PatternMatch) {
+                    if ($NewData -match $ValidatePattern) {
                         if ($NewData -notin $InnerObject) {
                             Write-Debug "Action: Replace; Old Data $OldData; New Data: $NewData"
                             $InnerObject[$EditSelection.IndexOf(' ')] = $NewData
@@ -175,8 +175,8 @@ function InteractWith-Variable {
                         }
                     }
                     else {
-                        Write-Debug "`"$NewData`" does not match required pattern `"$PatternMatch`""
-                        Write-Host "`"$NewData`" does not match required pattern `"$PatternMatch`"" -ForegroundColor DarkCyan
+                        Write-Debug "`"$NewData`" does not match required pattern `"$ValidatePattern`""
+                        Write-Host "`"$NewData`" does not match required pattern `"$ValidatePattern`"" -ForegroundColor DarkCyan
                         Pause
                     }
                     break
