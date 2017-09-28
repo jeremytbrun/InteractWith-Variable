@@ -1,18 +1,39 @@
 <#
 .SYNOPSIS
-    Adds a basic console menu system for interacting with a variable that has one or many (array) simple values.
+Adds a basic console menu system for interacting with a variable that has one or many (array) simple values.
+
 .DESCRIPTION
-    Adds a basic console menu system for interacting with a variable that has one or many (array) simple values. It does so
-    by detecting the type of the variable and displaying a generic menu system that allows interaction with
-    that variable type.    
+Adds a basic console menu system for interacting with a variable that has one or many (array) simple values. It does so
+by detecting the type of the variable and displaying a generic menu system that allows interaction with
+that variable type.
+
+.PARAMETER InputObject
+Single or multi (array) primitive data type.
+
+.PARAMETER InformationalHeader
+Custom informational header for menu system.
+
+.PARAMETER ValidatePattern
+Regex pattern to validate input with.
+
+.PARAMETER ValidateScript
+Script block to validate input with.
+
 .EXAMPLE
-    InteractWith-Variable -InputObject $(Get-Process).Name -Label "Local Processes"
+$FinalResults = InteractWith-Variable -InputObject @("Data1","Data2","Data3") -InformationalHeader "Data List"
+
 .EXAMPLE
-    InteractWith-Variable -InputObject $(Get-Process)[0].Name -Label "Local Processes"
-.INPUTS
-    Variable to be interacted with.
-.OUTPUTS
-    Resulting modified variable.
+$FinalResults = InteractWith-Variable -InputObject @("Data1","Data2","Data3") -InformationalHeader "User Emails" -ValidatePattern '^\w+@domain\.com$'
+
+.EXAMPLE
+$ValidationScript = {
+    Get-ADUser $_.Split('@')[0]
+}
+
+$FinalResults = InteractWith-Variable -InputObject @("Data1","Data2","Data3") -InformationalHeader "User Emails" -ValidatePattern '^\w+@domain\.com$' -ValidateScript $ValidationScript
+
+.NOTES
+None
 #>
 Function InteractWith-Variable {
     [CmdletBinding(SupportsShouldProcess = $true,
