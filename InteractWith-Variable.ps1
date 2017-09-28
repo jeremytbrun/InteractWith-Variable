@@ -179,19 +179,16 @@ Function InteractWith-Variable {
                                 $InnerObject += $NewData
                             }
                             else {
-                                Write-Debug "Object already contains data: $NewData"
-                                Write-Host "Value is already present!" -ForegroundColor DarkCyan
+                                Write-Host "`"$NewData`" is already present!" -ForegroundColor DarkCyan
                                 Pause
                             }
                         }
                         else {
-                            Write-Debug "`"$NewData`" does not pass validation script`n$ValidateScript"
                             Write-Host "`"$NewData`" does not pass validation script`n$ValidateScript" -ForegroundColor DarkCyan
                             Pause
                         }
                     }
                     else {
-                        Write-Debug "`"$NewData`" does not match pattern `"$ValidatePattern`""
                         Write-Host "`"$NewData`" does not match pattern `"$ValidatePattern`"" -ForegroundColor DarkCyan
                         Pause
                     }
@@ -208,19 +205,16 @@ Function InteractWith-Variable {
                                 $InnerObject[$EditSelection.Substring($EditSelection.IndexOf(' ') + 1, 1) - 1] = $NewData
                             }
                             else {
-                                Write-Debug "Object already contains data: $NewData"
-                                Write-Host "Value is already present!" -ForegroundColor DarkCyan
+                                Write-Host "`"$NewData`" is already present!" -ForegroundColor DarkCyan
                                 Pause
                             }
                         }
                         else {
-                            Write-Debug "`"$NewData`" does not pass validation script`n$ValidateScript"
                             Write-Host "`"$NewData`" does not pass validation script`n$ValidateScript" -ForegroundColor DarkCyan
                             Pause
                         }
                     }
                     else {
-                        Write-Debug "`"$NewData`" does not match required pattern `"$ValidatePattern`""
                         Write-Host "`"$NewData`" does not match required pattern `"$ValidatePattern`"" -ForegroundColor DarkCyan
                         Pause
                     }
@@ -242,13 +236,11 @@ Function InteractWith-Variable {
                             $InnerObject = $NewData
                         }
                         else {
-                            Write-Debug "`"$NewData`" does not pass validation script`n$ValidateScript"
                             Write-Host "`"$NewData`" does not pass validation script`n$ValidateScript" -ForegroundColor DarkCyan
                             Pause
                         }
                     }
                     else {
-                        Write-Debug "`"$NewData`" does not match required pattern `"$ValidatePattern`""
                         Write-Host "`"$NewData`" does not match required pattern `"$ValidatePattern`"" -ForegroundColor DarkCyan
                         Pause
                     }
