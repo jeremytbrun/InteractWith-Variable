@@ -23,14 +23,14 @@ Script block to validate input with.
 $FinalResults = InteractWith-Variable -InputObject @("Data1","Data2","Data3") -InformationalHeader "Data List"
 
 .EXAMPLE
-$FinalResults = InteractWith-Variable -InputObject @("Data1","Data2","Data3") -InformationalHeader "User Emails" -ValidatePattern '^\w+@domain\.com$'
+$FinalResults = InteractWith-Variable -InputObject @("user1@domain.com","user2@domain.com","user3@domain.com") -InformationalHeader "User Emails" -ValidatePattern '^\w+@domain\.com$'
 
 .EXAMPLE
 $ValidationScript = {
     Get-ADUser $_.Split('@')[0]
 }
 
-$FinalResults = InteractWith-Variable -InputObject @("Data1","Data2","Data3") -InformationalHeader "User Emails" -ValidatePattern '^\w+@domain\.com$' -ValidateScript $ValidationScript
+$FinalResults = InteractWith-Variable -InputObject @() -InformationalHeader "User Emails" -ValidatePattern '^\w+@domain\.com$' -ValidateScript $ValidationScript
 
 .NOTES
 None
